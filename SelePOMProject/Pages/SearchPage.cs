@@ -4,33 +4,51 @@ using System.Text;
 using OpenQA.Selenium.Support;
 using SeleniumExtras.PageObjects;
 using OpenQA.Selenium;
-using SeleniumPomProject.BaseClass;
+using SelePOMProject.BaseClass;
+using SelePOMProject.GenericMethods;
 using Baseclass.Contrib.SpecFlow.Selenium.NUnit.Bindings;
+using SelePOMProject;
+using System.Threading;
 
-namespace SeleniumPomProject.Pages
+namespace SelePOMProject.Pages
 {
-   public class SearchPage 
-    {
+    public class SearchPage : BaseClass.BaseClass
+    {        
         IWebDriver driver;
-        public SearchPage(IWebDriver driver)
-        { 
-           this.driver=driver;
-            PageFactory.InitElements(driver, this);
-         }
-        [FindsBy(How=How.XPath,Using =".//*[@title='Search']")]
-        public IWebElement SearchTextBox { get; set; }
-
-        [FindsBy(How = How.XPath, Using = "(.//input[@aria-label='Google Search'])[2]")]
-        public IWebElement SearchButton { get; set; }
-
-        public void SearchText()
+        private static SearchPage instance = null;
+        public static SearchPage GetInstance(IWebDriver driver)
         {
-            SearchTextBox.SendKeys("Selenium C# tutorial");
-            SearchButton.Click();
+            if (instance == null)
+            {
+                instance = new SearchPage(driver);
+            }
+            return instance;
+        }
+        public SearchPage(IWebDriver webDriver)
+        {
+            this.driver = webDriver;
+        }
+        public IWebDriver SetDriver(IWebDriver webDriver)
+        {
+            webDriver = driver;
+            return driver;
+        }
+        public void EnterSearchText(String value)
+        {           
+            IWebElement element =SearchPage.GetInstance(driver).SetDriver(driver).FindElement(By.XPath(Elements.Instance.SearchTextbox));
+            Keywords.Instance.ClearandSendtext(element, value);           
         }
         public void ClickSearchButton()
         {
-            SearchButton.Click();
+            IWebElement element = SearchPage.GetInstance(driver).SetDriver(driver).FindElement(By.XPath(Elements.Instance.SearchButton));
+            Keywords.Instance.ClickWebElement(SearchPage.GetInstance(driver).SetDriver(driver), element);
+        }
+        public void ApplicationLaunched()
+        {
+            if (driver != null)
+            {
+                Console.WriteLine("Application launched successfully");
+            }
         }
 
     }

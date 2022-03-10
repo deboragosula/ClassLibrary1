@@ -1,30 +1,47 @@
 ﻿using Baseclass.Contrib.SpecFlow.Selenium.NUnit.Bindings;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.PageObjects;
-using SeleniumPomProject.BaseClass;
+using SelePOMProject.BaseClass;
 using System;
 using System.Collections.Generic;
+using SelePOMProject.GenericMethods;
 using System.Text;
+using System.Threading;
+using SelePOMProject;
 
-namespace SeleniumPomProject.Pages
+namespace SelePOMProject.Pages
 {
-    public class ValidationPage 
+    public class ValidationPage : BaseClass.BaseClass
     {
+        #region Lazy Instance
         IWebDriver driver;
-        public ValidationPage(IWebDriver driver)
+        private static ValidationPage instance = null;
+        public static ValidationPage GetInstance(IWebDriver driver)
         {
-            this.driver = driver;
-            PageFactory.InitElements(driver, this);
-        }
-        [FindsBy(How = How.XPath, Using = "//h1[text()='Selenium C Sharp Tutorial']")]
-        public IWebElement ValidateTitle { get; set; }        
-
-        public void ValidateTitleofPage()
-        {
-           bool Title= ValidateTitle.Displayed;
-            if (Title.Equals(true) && ValidateTitle.Text.Equals("Selenium C Sharp Tutorial"))
+            if (instance == null)
             {
-                Console.WriteLine("Validation od title is completed");
+                instance = new ValidationPage(driver);
+            }
+            return instance;
+        }
+        public ValidationPage(IWebDriver webDriver)
+        {
+            this.driver = webDriver;
+        }
+        public IWebDriver SetDriver(IWebDriver webDriver)
+        {
+            webDriver = driver;
+            return driver;
+        }
+        #endregion     
+        public void ValidateTitleofPage(string ActualTitle)
+        {
+            IWebElement element = ValidationPage.GetInstance(driver).SetDriver(driver).FindElement(By.XPath(Elements.Instance.PageTitle));
+            bool Title = Keywords.Instance.ElementisDisplayed(element);
+
+            if (Title.Equals(true) && ActualTitle.Equals(element.Text))
+            {
+                Console.WriteLine("Validation of title is completed");
             }
         }
     }
